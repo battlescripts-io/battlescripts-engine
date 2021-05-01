@@ -1,0 +1,19 @@
+{
+  "name": "battlescripts",
+  "version": "1.0.0",
+  "description": "Battlescripts Engine",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/battlescripts-io/battlescripts-engine.git"
+  },
+  "author": "Matt Kruse <github@mattkruse.com> (http://mattkruse.com/)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/battlescripts-io/battlescripts-engine/issues"
+  },
+  "homepage": "https://github.com/battlescripts-io/battlescripts-engine#readme"
+}
