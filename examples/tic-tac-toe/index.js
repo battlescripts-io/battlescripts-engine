@@ -9,22 +9,34 @@ const render = require('./render.js');
     console.log("Starting match");
 
     // Watch the game as it is being played
+    let previousState = null;
     battlescripts.observe(function(gameDirective) {
-      console.log( render(gameDirective.state) );
+      // Allow the game to log things
+      let log = gameDirective.log;
+      if (log) {
+        if (typeof log==="string") { log = [log]; }
+        log.forEach(s=>{
+          console.log(`Game Log: ${s}`)
+        });
+      }
+
+      // Log the game to the console to watch
+      console.log( render(gameDirective.state,previousState) );
+      previousState = gameDirective.state;
+
       // introduce an artificial delay
-      return new Promise((resolve,reject)=>{
-        setTimeout(resolve,200);
+      return new Promise((resolve)=>{
+        setTimeout(resolve,1);
       });
     });
 
     // POC: Wrap p1 to be async
     p1._onTurn = p1.onTurn;
     p1.onTurn = async function(req) {
-      return new Promise((resolve,reject)=>{
+      return new Promise((resolve)=>{
         setTimeout(()=>{
-          let response  = p1._onTurn(req);
-          resolve(response);
-        },200);
+          resolve(p1._onTurn(req));
+        },1);
       });
     };
 
@@ -32,12 +44,14 @@ const render = require('./render.js');
     let results = await battlescripts.match({
       game: game,
       players: [p1, p2],
-      games: 3,
+      games: 10,
       knowledge: [],
       scenario: {}
     });
 
-    console.log( JSON.stringify(results,null,2) );
+    let tally = battlescripts.tally(results.results);
+    console.log( JSON.stringify(tally,null,2) );
+
   } catch(e) {
     console.log(e);
   }

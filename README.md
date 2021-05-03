@@ -52,7 +52,10 @@ interface GameDirective {
     scores: {
       PlayerId: Number
     }
-  }
+  },
+  
+  // Info from the game, which might be displayed to the user
+  log?: String | [ String* ]
 }
 
 interface PlayerGameStart {

@@ -48,7 +48,7 @@
       for (let i = 0; i < config.games; i++) {
         // Reset state list
         gameStates = [];
-        
+
         // Tell the Game to start
         log("Creating game");
 
@@ -72,9 +72,10 @@
 
         // Tell the game to start and get the first directive to act on
         let gameDirective = await game.start();
+        let endLoop = false;
 
         // Game Loop
-        while (gameDirective && !gameDirective.gameOver && ++loopCount < loopLimit) {
+        while (!endLoop && ++loopCount < loopLimit) {
           log("gameDirective", gameDirective);
 
           // Allow an Observer to watch and modify the game
@@ -85,17 +86,24 @@
             }
           }
 
-          // state 
+          // state
           // =====
           if (gameDirective.state) {
             gameStates.push(gameDirective.state);
+          }
+
+          // gameOver?
+          // =========
+          if (gameDirective && gameDirective.gameOver) {
+            endLoop = true;
+            continue;
           }
 
           // message
           // =======
           // TODO
 
-          // getTurn 
+          // getTurn
           // =======
           // Ask player(s) to take a turn
           if (gameDirective.getTurn) {
@@ -118,12 +126,18 @@
               );
 
               // Allow the player to return a PlayerTurn object or just a move
+              let move;
               if (response && response.move) {
                 move = response.move;
                 playerStates[playerId] = response.playerState
               }
               else {
                 move = response;
+              }
+
+              // Make sure the player returned *something*
+              if (typeof move==="undefined") {
+                move = {error:"Player did not return a move"};
               }
 
               // Add this player's move to the list
@@ -137,7 +151,7 @@
 
         } // while
 
-        // Game is over 
+        // Game is over
         log("Game Over!");
 
         let results = gameDirective.results;
@@ -170,13 +184,61 @@
         state: matchGameStates
       };
     }, // match()
-    
-    // TODO: Take raw match results and convert them into a usable summary/total
+
+    // Take raw match results and convert them into a usable summary/total
     tally: function(results) {
-    
+      // TODO: Discuss what this should look like?
+      let matchResults = {
+        winners:[],
+        gameWinners:[],
+        scores: {},
+        leaderboard:[],
+        highScore:0
+      };
+
+      let sortByNumericValueDesc = (a,b)=>{
+        if (a[1]<b[1]) { return 1; }
+        if (a[1]>b[1]) { return -1; }
+        return 0;
+      };
+
+      // results is an array of individual game results
+      results.forEach(gameResult=>{
+        // gameResult is an object containing player scores
+        let highScore = null;
+        let winners = [];
+        // Sort the players by high score
+        let leaderboard = Object.entries(gameResult).sort(sortByNumericValueDesc);
+        for (let [playerId,score] of leaderboard) {
+          matchResults.scores[playerId] = matchResults.scores[playerId] || 0;
+          matchResults.scores[playerId] += score;
+
+          if (highScore===null) {
+            highScore = score;
+          }
+          if (score === highScore) {
+            winners.push(playerId);
+          }
+        }
+        matchResults.gameWinners.push(winners);
+      });
+
+      // We've now totaled up all game scores and can find overall winners
+      matchResults.leaderboard = Object.entries(matchResults.scores).sort(sortByNumericValueDesc);
+      matchResults.leaderboard.forEach(r=>{
+        let [playerId,score] = r;
+        if (matchResults.highScore === 0) {
+          matchResults.highScore = score;
+        }
+        if (score === matchResults.highScore) {
+          matchResults.winners.push(playerId);
+        }
+      });
+
+      return matchResults;
     }
 
-  }
+  };
 
   module.exports = exports = battlescripts;
 
