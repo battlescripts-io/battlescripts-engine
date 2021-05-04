@@ -27,6 +27,7 @@ const timeout = require('./src/util/timeout');
       for (let i = 0; i < config.games; i++) {
         // Reset state list
         gameStates = [];
+        playerStates = [];
 
         // Tell the Game to start
         log("Creating game");
