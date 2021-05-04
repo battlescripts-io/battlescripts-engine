@@ -1,7 +1,13 @@
 // Stupid Player #2
 // Move randomly
+
+const delay = async (ms) => await new Promise((resolve) => setTimeout(resolve, ms));
+
 module.exports = {
   onTurn: async function (turnRequest) {
+
+    await delay(800);
+
     let gameState = turnRequest.gameState;
     let square, row, col;
     do {

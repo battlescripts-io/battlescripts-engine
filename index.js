@@ -1,28 +1,7 @@
+const log = require('./src/util/log');
+const timeout = require('./src/util/timeout');
+
 (function() {
-
-  let log=function(){
-    if (false) {
-      console.log.apply(console,arguments);
-    }
-  };
-
-  // Util function to timeout an async function call
-  let timeout = async function(ms,f) {
-    let timer = null;
-    return new Promise(async(resolve)=>{
-      timer = setTimeout(()=>{
-        resolve({error:"timeout"});
-      },ms);
-      try {
-        let val = await f();
-        clearTimeout(timer);
-        resolve(val);
-      } catch(e) {
-        resolve({error:e.message});
-      }
-    });
-  };
-
   let battlescripts = {
     observer: null,
 
