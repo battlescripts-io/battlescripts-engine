@@ -2,6 +2,8 @@ const log = require('./src/util/log');
 const timeout = require('./src/util/timeout');
 
 (function() {
+  let clone = o=>{ return JSON.parse(JSON.stringify(o)); };
+
   let battlescripts = {
     observer: null,
 
@@ -69,7 +71,7 @@ const timeout = require('./src/util/timeout');
           // state
           // =====
           if (gameDirective.state) {
-            gameStates.push(gameDirective.state);
+            gameStates.push(clone(gameDirective.state));
           }
 
           // gameOver?
@@ -137,7 +139,7 @@ const timeout = require('./src/util/timeout');
         let results = gameDirective.results;
         log(results);
 
-        matchResults.push(results);
+        matchResults.push(clone(results));
         matchGameStates.push(gameStates);
 
         // Tell each Player the game is over
