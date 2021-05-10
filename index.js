@@ -11,6 +11,14 @@ const timeout = require('./src/util/timeout');
       battlescripts.observer = newObserver;
     },
 
+    callObserver: async function(observed) {
+      if (battlescripts.observer) {
+        // Allow observer to modify, other return the original
+        return await battlescripts.observer(observed) || observed;
+      }
+
+    },
+
     match: async function(config) {
       const game = config.game;
       const players = config.players || [];
@@ -60,13 +68,8 @@ const timeout = require('./src/util/timeout');
         while (!endLoop && ++loopCount < loopLimit) {
           log("gameDirective", gameDirective);
 
-          // Allow an Observer to watch and modify the game
-          if (battlescripts.observer) {
-            let newDirective = await battlescripts.observer(gameDirective);
-            if (newDirective) {
-              gameDirective = newDirective;
-            }
-          }
+          // Observe the GameDirective before anything else sees it
+          gameDirective = battlescripts.callObserver(gameDirective);
 
           // state
           // =====
@@ -125,6 +128,10 @@ const timeout = require('./src/util/timeout');
               // Add this player's move to the list
               moves[playerId] = move;
             }
+
+            // Observe the moves before returning to Game
+            moves = battlescripts.callObserver(moves);
+            
             log(moves);
 
             // Return the moves back to the game and wait for what to do next
