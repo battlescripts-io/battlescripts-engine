@@ -1,8 +1,35 @@
-const log = require('./src/util/log');
-const timeout = require('./src/util/timeout');
-
 (function() {
-  let clone = o=>{ return JSON.parse(JSON.stringify(o)); };
+  const clone = o=>{
+    if (!o) { return o; }
+    return JSON.parse(JSON.stringify(o));
+  };
+  const log = function() {
+    if (console && console.log) {
+      //console.log.apply(console, arguments);
+    }
+  };
+  const timeout = async function(ms,f) {
+    let timer = null;
+    return new Promise(async(resolve)=>{
+      timer = setTimeout(()=>{
+        resolve({error:"timeout"});
+      },ms);
+      try {
+        let val = await f();
+        clearTimeout(timer);
+        resolve(val);
+      } catch(e) {
+        resolve({error:e.message});
+      }
+    });
+  };
+  // async function raceImplementation(ms,f) {
+  //   return Promise.race([
+  //     f(),
+  //     new Promise((resolve) => setTimeout(() => resolve({error: "timeout"}), ms))
+  //   ]);
+  // };
+
 
   let battlescripts = {
     observer: null,
@@ -13,8 +40,9 @@ const timeout = require('./src/util/timeout');
 
     callObserver: async function(observed) {
       if (battlescripts.observer) {
-        // Allow observer to modify, other return the original
-        return await battlescripts.observer(observed) || observed;
+        // Allow observer to modify, otherwise return the original
+        let response = await battlescripts.observer(observed);
+        return response || observed;
       }
 
     },
@@ -66,10 +94,11 @@ const timeout = require('./src/util/timeout');
 
         // Game Loop
         while (!endLoop && ++loopCount < loopLimit) {
-          log("gameDirective", gameDirective);
+          log("gameDirective from game", gameDirective);
 
           // Observe the GameDirective before anything else sees it
-          gameDirective = battlescripts.callObserver(gameDirective);
+          gameDirective = await battlescripts.callObserver(gameDirective);
+          log("gameDirective after observer", gameDirective);
 
           // state
           // =====
@@ -130,8 +159,8 @@ const timeout = require('./src/util/timeout');
             }
 
             // Observe the moves before returning to Game
-            moves = battlescripts.callObserver(moves);
-            
+            moves = await battlescripts.callObserver(moves);
+
             log(moves);
 
             // Return the moves back to the game and wait for what to do next

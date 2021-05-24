@@ -1,5 +1,6 @@
 // Stupid Player #1
 // Take the first available move from top down
+// This is a synchronous player
 module.exports = {
   onTurn: function (turnRequest) {
     let gameState = turnRequest.gameState;

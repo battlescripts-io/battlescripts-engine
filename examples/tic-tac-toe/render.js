@@ -1,4 +1,7 @@
 module.exports = function (state, previousState) {
+  if (!state) {
+    throw "state is undefined or null";
+  }
   let b = state.board;
   let d = (row, col) => {
     if (b[row][col] == null) {
@@ -13,4 +16,4 @@ module.exports = function (state, previousState) {
   board += `${d(2, 0)}|${d(2, 1)}|${d(2, 2)} \n`;
 
   return board;
-}
+};

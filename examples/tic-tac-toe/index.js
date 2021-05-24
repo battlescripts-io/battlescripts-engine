@@ -8,9 +8,11 @@ const render = require('./render.js');
   try {
     console.log("Starting match");
 
-    // Watch the game as it is being played
+    // Watch the game as it is being played.
+    // We could modify things here, but we won't.
+    // This same observer gets called before processing a gameDirective AND after players have moved
     let previousState = null;
-    battlescripts.observe(function(gameDirective) {
+    battlescripts.observe(async function(gameDirective) {
       // Allow the game to log things
       let log = gameDirective.log;
       if (log) {
@@ -21,8 +23,11 @@ const render = require('./render.js');
       }
 
       // Log the game to the console to watch
-      console.log( render(gameDirective.state,previousState) );
-      previousState = gameDirective.state;
+      // But only if there is state, because this could be a directive of player moves
+      if (gameDirective.state) {
+        console.log(render(gameDirective.state, previousState));
+        previousState = gameDirective.state;
+      }
 
       // introduce an artificial delay
       return new Promise((resolve)=>{
@@ -50,6 +55,8 @@ const render = require('./render.js');
     });
 
     let tally = battlescripts.tally(results.results);
+    let states = results.state;
+
     console.log( JSON.stringify(tally,null,2) );
 
   } catch(e) {
