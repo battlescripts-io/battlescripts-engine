@@ -131,13 +131,20 @@
               // Get the player's current stored state
               let playerState = playerStates[playerId];
 
+              // Make sure that we are not passing references to our state
+              let clonedGameState = clone(gameState);
+              let clonedPlayerState = clone(playerState);
+
               let response = await timeout(turnTimeout,async()=>{
                   return await player.onTurn({
-                    gameState: gameState,
-                    playerState: playerState
+                    gameState: clonedGameState,
+                    playerState: clonedPlayerState
                   });
                 }
               );
+
+              // Make sure we are not handling a reference to a Player response
+              response = clone(response);
 
               // Allow the player to return a PlayerTurn object or just a move
               let move;
@@ -182,15 +189,17 @@
         for (let [i,player] of Object.entries(players)) {
           let playerKnowledge = {};
           if (typeof player.onGameEnd==="function") {
-            // TODO: timeout
+            let clonedResults = clone(results);
+            let clonedGameState = clone(gameStates[gameStates.length-1]);
+            let clonedPlayerState = clone(playerStates[i]);
             playerKnowledge = await timeout(gameEndTimeout,async()=>{
               return await player.onGameEnd({
-                results: results,
-                gameState: gameStates[gameStates.length-1],
-                playerState: playerStates[i]
+                results: clonedResults,
+                gameState: clonedGameState,
+                playerState: clonedPlayerState
               });
             });
-            knowledge[i] = playerKnowledge;
+            knowledge[i] = clone(playerKnowledge);
           }
         }
 
