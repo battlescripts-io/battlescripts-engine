@@ -38,10 +38,10 @@
       battlescripts.observer = newObserver;
     },
 
-    callObserver: async function(observed) {
+    callObserver: async function(observed, type) {
       if (battlescripts.observer) {
         // Allow observer to modify, otherwise return the original
-        let response = await battlescripts.observer(observed);
+        let response = await battlescripts.observer(observed, type);
         return response || observed;
       }
       return observed;
@@ -97,7 +97,7 @@
           log("gameDirective from game", gameDirective);
 
           // Observe the GameDirective before anything else sees it
-          gameDirective = await battlescripts.callObserver(gameDirective);
+          gameDirective = await battlescripts.callObserver(gameDirective, "gameDirective");
           log("gameDirective after observer", gameDirective);
 
           // state
@@ -166,7 +166,7 @@
             }
 
             // Observe the moves before returning to Game
-            moves = await battlescripts.callObserver(moves);
+            moves = await battlescripts.callObserver(moves, "moves");
 
             log(moves);
 
