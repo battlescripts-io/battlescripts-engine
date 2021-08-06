@@ -44,7 +44,7 @@
         let response = await battlescripts.observer(observed);
         return response || observed;
       }
-
+      return observed;
     },
 
     match: async function(config) {
