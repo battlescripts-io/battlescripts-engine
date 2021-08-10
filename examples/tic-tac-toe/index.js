@@ -56,7 +56,9 @@ const render = require('./render.js');
 
     let tally = battlescripts.tally(results.results);
     let states = results.state;
+    let logs = results.log;
 
+    console.log(logs);
     console.log( JSON.stringify(tally,null,2) );
 
   } catch(e) {

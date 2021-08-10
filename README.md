@@ -35,7 +35,8 @@ Returned from the Engine. The results are an Array of results for each game. The
 ````
 interface MatchResults {
   results: [ GameResults* ],
-  state: [ [ GameState* ] ]
+  state: [ [ GameState* ] ],
+  log: [ [ String* ] ]
 }
 ````
 
@@ -67,11 +68,6 @@ interface GameDirective {
   // Pass each player a game state that is specific to them.
   getTurn?: {
     PlayerId: GameState
-  },
-
-  // Pass an arbitrary message to one or more players.
-  message?: {
-    PlayerId: GameMessage
   },
 
   // Return true if the game is over the loop should terminate  
@@ -106,7 +102,6 @@ These are game-defined types that may contain any data or structure as decided a
 
 ```
 type GameState;
-type GameMessage;
 type Move;
 type Scenario;
 ````
@@ -180,7 +175,6 @@ interface Engine {
 interface Player {
   onGameStart(PlayerGameStart): PlayerState,
   onTurn(PlayerTurnRequest): PlayerTurn | Move,
-  onMessage(GameMessage): PlayerState,
   onGameEnd(PlayerGameEnd): PlayerKnowledge?
 }
 

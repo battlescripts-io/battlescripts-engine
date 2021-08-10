@@ -49,6 +49,7 @@
         let gameStates = [];
         let matchGameStates = [];
         let matchResults = [];
+        let matchLogs = [];
         let loopLimit = config.loopLimit || 500;
         let loopCount = 0;
         let defaultTimeout = 1000;
@@ -60,6 +61,9 @@
           // Reset state list
           gameStates = [];
           playerStates = [];
+
+          // Store logs for this game, to be added to match logs
+          let gameLogs = [];
 
           // Tell the Game to start
           log("Creating game");
@@ -94,6 +98,17 @@
             gameDirective = await battlescripts.callObserver(gameDirective, "gameDirective");
             log("gameDirective after observer", gameDirective);
 
+            // log
+            // ===
+            if (gameDirective.log) {
+              if (typeof gameDirective.log=="string") {
+                gameLogs.push(gameDirective.log);
+              }
+              else {
+                gameLogs.push(...gameDirective.log);
+              }
+            }
+
             // state
             // =====
             if (gameDirective.state) {
@@ -106,10 +121,6 @@
               endLoop = true;
               continue;
             }
-
-            // message
-            // =======
-            // TODO
 
             // getTurn
             // =======
@@ -177,6 +188,7 @@
 
           matchResults.push(clone(results));
           matchGameStates.push(gameStates);
+          matchLogs.push(clone(gameLogs));
 
           // Tell each Player the game is over
           for (let [i, player] of Object.entries(players)) {
@@ -201,7 +213,8 @@
         // Return the Match results back to the Host
         return {
           results: matchResults,
-          state: matchGameStates
+          state: matchGameStates,
+          log: matchLogs
         };
       }, // match()
 
